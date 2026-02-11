@@ -4,21 +4,30 @@
  * Google Spreadsheet Daily Row Creator
  * 
  * daily_reportシートに新しい日付の行を自動追加
- * 最終行の数式をコピーして日付だけ更新
+ * 最終行の数式をコピーして行番号を更新
  */
 
 const { google } = require('googleapis');
-const fs = require('fs');
 const path = require('path');
 
 // 設定
 const SPREADSHEET_ID = '1Auu97EDFzflnr_3AVdjv-OByy1t1fkZfcnJEBMiJcRc';
 const SHEET_NAME = 'daily_report';
-const DATE_COLUMN = 'A'; // 日付列
 
-// Google認証設定（OAuth2またはサービスアカウント）
-// ここではサービスアカウントを想定
+// Google認証設定
 const CREDENTIALS_PATH = path.join(process.env.HOME, '.openclaw', 'google-credentials.json');
+
+/**
+ * 数式内の行番号を更新
+ * 例: $A190 -> $A191
+ */
+function updateFormulaRowNumbers(formula, oldRow, newRow) {
+  if (!formula) return formula;
+  
+  // $A190 のようなパターンを $A191 に置換
+  const pattern = new RegExp(`\\$([A-Z]+)${oldRow}(?![0-9])`, 'g');
+  return formula.replace(pattern, `$$$1${newRow}`);
+}
 
 async function addDailyRow(targetDate) {
   try {
@@ -38,10 +47,11 @@ async function addDailyRow(targetDate) {
 
     const rows = response.data.values || [];
     const lastRow = rows.length;
+    const newRow = lastRow + 1;
     
-    console.log(`最終行: ${lastRow}`);
+    console.log(`最終行: ${lastRow} → 新しい行: ${newRow}`);
 
-    // 2. 最終行の数式を取得
+    // 2. 最終行の数式とフォーマットを取得
     const formulaResponse = await sheets.spreadsheets.get({
       spreadsheetId: SPREADSHEET_ID,
       ranges: [`${SHEET_NAME}!${lastRow}:${lastRow}`],
@@ -50,14 +60,45 @@ async function addDailyRow(targetDate) {
 
     const lastRowData = formulaResponse.data.sheets[0].data[0].rowData[0].values;
 
-    // 3. 新しい行を追加（日付のみ変更、他は数式コピー）
-    const newRow = lastRowData.map((cell, index) => {
+    // 3. 新しい行のデータを作成
+    const newRowData = lastRowData.map((cell, index) => {
       if (index === 0) {
         // A列（日付）は新しい日付に
-        return { userEnteredValue: { stringValue: targetDate } };
+        const dateParts = targetDate.split('/');
+        const year = parseInt(dateParts[0]);
+        const month = parseInt(dateParts[1]) - 1; // 月は0-indexed
+        const day = parseInt(dateParts[2]);
+        const dateValue = new Date(year, month, day);
+        
+        // Google Sheetsの日付シリアル値に変換
+        const epoch = new Date(1899, 11, 30);
+        const serialDate = (dateValue - epoch) / (1000 * 60 * 60 * 24);
+        
+        return { 
+          userEnteredValue: { numberValue: serialDate },
+          userEnteredFormat: { 
+            numberFormat: { type: 'DATE', pattern: 'yyyy/MM/dd' },
+            horizontalAlignment: 'CENTER'
+          }
+        };
       } else {
-        // 他の列は数式をそのままコピー
-        return { userEnteredValue: cell.userEnteredValue };
+        // 他の列は数式の行番号を更新してコピー
+        const newCell = { userEnteredFormat: cell.userEnteredFormat };
+        
+        if (cell.userEnteredValue?.formulaValue) {
+          // 数式がある場合、行番号を更新
+          const updatedFormula = updateFormulaRowNumbers(
+            cell.userEnteredValue.formulaValue,
+            lastRow,
+            newRow
+          );
+          newCell.userEnteredValue = { formulaValue: updatedFormula };
+        } else if (cell.userEnteredValue) {
+          // 数式がない場合はそのままコピー
+          newCell.userEnteredValue = cell.userEnteredValue;
+        }
+        
+        return newCell;
       }
     });
 
@@ -69,18 +110,19 @@ async function addDailyRow(targetDate) {
           {
             appendCells: {
               sheetId: await getSheetId(sheets, SHEET_NAME),
-              rows: [{ values: newRow }],
-              fields: 'userEnteredValue',
+              rows: [{ values: newRowData }],
+              fields: 'userEnteredValue,userEnteredFormat',
             },
           },
         ],
       },
     });
 
-    console.log(`✅ ${targetDate}の行を追加しました`);
+    console.log(`✅ ${targetDate}の行を追加しました（行${newRow}）`);
     return true;
   } catch (error) {
     console.error('❌ エラー:', error.message);
+    console.error(error.stack);
     return false;
   }
 }

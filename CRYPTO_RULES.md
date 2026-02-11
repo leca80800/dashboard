@@ -97,16 +97,20 @@
 ├── AGENTS.md                    # エージェント一覧
 ├── CRYPTO_RULES.md              # このファイル（運用ルール）
 │
-├── dashboard/                   # 統合ダッシュボード
-│   ├── index.html
-│   ├── style.css
-│   ├── script.js
-│   ├── N8N_DATA_FORMAT.md
-│   ├── CRYPTOPRO_DATA_FORMAT.md
-│   └── data/
-│       ├── charts/              # チャート画像
-│       ├── n8n-reports/         # n8n日報JSON
-│       └── cryptopro-logs/      # cryptopro分析ログJSON
+├── dashboard/                   # 統合ダッシュボード（GitHub Pages）
+│   ├── index.html              # トップページ（プロジェクト選択）
+│   ├── style.css               # トップページスタイル
+│   ├── auth.js                 # 認証ロジック
+│   └── crypto/                 # 仮想通貨ダッシュボード
+│       ├── index.html
+│       ├── style.css
+│       ├── auth.js
+│       ├── N8N_DATA_FORMAT.md
+│       ├── CRYPTOPRO_DATA_FORMAT.md
+│       └── data/
+│           ├── charts/          # チャート画像
+│           ├── n8n-reports/     # n8n日報JSON
+│           └── cryptopro-logs/  # cryptopro分析ログJSON
 │
 ├── shared-knowledge/            # 共有知識ベース
 │   ├── market-insights.md       # 市場トレンド
@@ -131,6 +135,17 @@
     ├── trades/
     └── errors/
 ```
+
+### ダッシュボードURL
+- **トップ**: https://leca80800.github.io/dashboard/
+- **仮想通貨**: https://leca80800.github.io/dashboard/crypto/
+- **将来**: /dashboard/project-2/, /dashboard/project-3/, ...
+
+### Google OAuth設定
+- **Client ID**: 925290613992-tnoe2pjilbvtu210lgr29vcoju3aijg1.apps.googleusercontent.com
+- **許可ユーザー**: leca80800@gmail.com, klryon714@gmail.com
+- **認証方式**: フロントエンドOAuth（Client Secretなし）
+- **LocalStorage Key**: `dashboard_user`
 
 ### ファイル命名規則
 - **日報**: `YYYY-MM-DD.json`
@@ -264,10 +279,16 @@
 
 ## 📜 変更履歴
 
-- **2026-02-11**: 初回作成（cryptopro）
+- **2026-02-11 03:00**: 初回作成（cryptopro）
   - 基本ルール策定
   - ディレクトリ構造定義
   - セキュリティポリシー設定
+
+- **2026-02-11 15:00**: ダッシュボード構造更新（cryptopro）
+  - `/dashboard/` トップページ追加
+  - `crypto-dashboard/` → `crypto/` リネーム
+  - Google OAuth設定情報追加
+  - 拡張可能な構造に変更
 
 ---
 

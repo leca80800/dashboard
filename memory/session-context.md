@@ -27,10 +27,12 @@
 1. ✅ ダッシュボード作成完了
 2. ✅ データフォーマット策定
 3. ✅ 共有知識ベース構築
-4. ⏳ GitHub認証待ち（ユーザー起床後）
-5. ⏳ 取引所アカウント（OKX・Bybit申請予定）
-6. ⏳ 学習タスクcron設定
-7. ⏳ 定時分析cron設定
+4. ✅ GitHub認証完了
+5. ✅ Google OAuth設定完了
+6. ⏳ ダッシュボードトップページ作成中（Claude Code対応待ち）
+7. ⏳ 取引所アカウント（OKX・Bybit申請予定）
+8. ⏳ 学習タスクcron設定
+9. ⏳ 定時分析cron設定
 
 ### スケジュール
 - **毎日1時**: 市場トレンド・新手法リサーチ
@@ -82,6 +84,7 @@
 ### 戦略ファイル
 - `strategies/trading-playbook.md`: トレード戦略
 - `strategies/risk-management.md`: リスク管理ルール
+- `strategies/learning-task-spec.md`: 学習タスク詳細仕様
 
 ### 学習ログ
 - `memory/daily-learning.md`: 日次学習記録
@@ -93,9 +96,11 @@
 - `shared-knowledge/best-practices.md`: 成功パターン
 
 ### ダッシュボード
-- `dashboard/index.html`: メインUI
-- `dashboard/N8N_DATA_FORMAT.md`: n8nデータ仕様
-- `dashboard/CRYPTOPRO_DATA_FORMAT.md`: 分析ログ仕様
+- `crypto/index.html`: 仮想通貨ダッシュボードメインUI
+- `crypto/N8N_DATA_FORMAT.md`: n8nデータ仕様
+- `crypto/CRYPTOPRO_DATA_FORMAT.md`: 分析ログ仕様
+- **URL**: https://leca80800.github.io/dashboard/crypto/
+- **トップ**: https://leca80800.github.io/dashboard/ （実装予定）
 
 ---
 
@@ -130,6 +135,8 @@
 ## 📝 更新履歴
 
 - **2026-02-11 03:00**: 初回作成、プロジェクト基盤構築完了
+- **2026-02-11 11:00**: GitHub認証完了、ダッシュボード公開
+- **2026-02-11 15:00**: ダッシュボード構造変更計画、学習タスク詳細化
 
 ---
 
