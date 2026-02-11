@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>統合ダッシュボード</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .auth-container h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .auth-container p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .auth-note {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        /* プロジェクト選択画面 */
+        .dashboard-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-email {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .project-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ログイン前 -->
+    <div id="login-page" class="auth-container" style="display: none;">
+        <h1>📊</h1>
+        <h2>統合ダッシュボード</h2>
+        <p>プロジェクト管理ポータル</p>
+
+        <div id="g_id_onload"
+             data-client_id="925290613992-tnoe2pjilbvtu210lgr29vcoju3aijg1.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+
+        <p class="auth-note">※ 許可されたユーザーのみ利用可能です</p>
+    </div>
+
+    <!-- ログイン後 -->
+    <div id="dashboard-page" class="dashboard-container" style="display: none;">
+        <div class="dashboard-header">
+            <h1>📊 プロジェクト選択</h1>
+            <div class="user-info">
+                <span class="user-email" id="user-email"></span>
+                <button onclick="logout()" class="logout-btn">ログアウト</button>
+            </div>
+        </div>
+
+        <div class="projects-grid">
+            <a href="/dashboard/crypto/" class="project-card">
+                <div class="project-icon">🪙</div>
+                <div class="project-title">仮想通貨</div>
+                <div class="project-description">暗号資産トレーディングダッシュボード</div>
+            </a>
+
+            <!-- 将来的な拡張用 -->
+            <!--
+            <a href="/dashboard/project2/" class="project-card">
+                <div class="project-icon">📈</div>
+                <div class="project-title">株式投資</div>
+                <div class="project-description">株式ポートフォリオ管理</div>
+            </a>
+            -->
+        </div>
+    </div>
+
+    <!-- 未認可ユーザー -->
+    <div id="unauthorized-page" class="auth-container" style="display: none;">
+        <h1>🔒</h1>
+        <h2>アクセス権限がありません</h2>
+        <p>このアカウントは許可されていません</p>
+        <button onclick="logout()" class="logout-btn">ログアウト</button>
+    </div>
+
+    <script>
+        const ALLOWED_EMAILS = [
+            'leca80800@gmail.com',
+            'klryon714@gmail.com'
+        ];
+
+        let currentUser = null;
+
+        // 認証状態チェック
+        function checkAuth() {
+            const user = localStorage.getItem('dashboard_user');
+            if (!user) {
+                showLoginPage();
+                return false;
+            }
+
+            try {
+                currentUser = JSON.parse(user);
+                if (!ALLOWED_EMAILS.includes(currentUser.email)) {
+                    showUnauthorized();
+                    return false;
+                }
+                showDashboard();
+                return true;
+            } catch (e) {
+                showLoginPage();
+                return false;
+            }
+        }
+
+        // ログインページ表示
+        function showLoginPage() {
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('dashboard-page').style.display = 'none';
+            document.getElementById('unauthorized-page').style.display = 'none';
+        }
+
+        // ダッシュボード表示
+        function showDashboard() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'block';
+            document.getElementById('unauthorized-page').style.display = 'none';
+            document.getElementById('user-email').textContent = currentUser.email;
+        }
+
+        // 未認可ユーザー表示
+        function showUnauthorized() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'none';
+            document.getElementById('unauthorized-page').style.display = 'block';
+        }
+
+        // Google認証レスポンス処理
+        function handleCredentialResponse(response) {
+            const credential = response.credential;
+            const payload = parseJwt(credential);
+
+            if (ALLOWED_EMAILS.includes(payload.email)) {
+                const user = {
+                    email: payload.email,
+                    name: payload.name,
+                    picture: payload.picture
+                };
+                localStorage.setItem('dashboard_user', JSON.stringify(user));
+                location.reload();
+            } else {
+                showUnauthorized();
+            }
+        }
+
+        // JWT解析
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // ログアウト
+        function logout() {
+            localStorage.removeItem('dashboard_user');
+            location.reload();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+    </script>
+</body>
+</html>
